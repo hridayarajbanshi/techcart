@@ -169,6 +169,13 @@ export type Order = {
 };
 
 export type Product = {
+  imageUrl: string;
+  discountPrice: number | undefined;
+  category: any;
+  rating: number;
+  title: string;
+  tags: any;
+  isNew: any;
   _id: string;
   _type: "product";
   _createdAt: string;

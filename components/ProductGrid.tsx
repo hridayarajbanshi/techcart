@@ -1,130 +1,209 @@
-'use client';
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import ProductCard from './ProductCard';
-// Product data interface
-interface Product {
-  id: number;
-  name: string;
-  type: 'laptops' | 'headphones' | 'cameras' | 'smartwatch' | 'smartphones' | 'airbuds';
-  price: number;
-  originalPrice?: number;
-  image: string;
-  rating: number;
-  isNew?: boolean;
-  discount?: number;
-}
+"use client";
 
+import React, { useEffect, useState } from "react";
+import ProductCard from "./ProductCard";
+import { motion, AnimatePresence } from "framer-motion";
+import { client } from "@/sanity/lib/client";
+import { Loader2 } from "lucide-react";
+import { Product } from "@/sanity.types";
 
-const sampleProducts: Product[] = [
-  // Laptops
-  { id: 1, name: 'MacBook Pro 16"', type: 'laptops', price: 2399, originalPrice: 2599, image: '/api/placeholder/300/300', rating: 4.8, isNew: true },
-  { id: 2, name: 'Dell XPS 15', type: 'laptops', price: 1699, image: '/api/placeholder/300/300', rating: 4.6 },
-  { id: 3, name: 'HP Spectre x360', type: 'laptops', price: 1299, originalPrice: 1499, image: '/api/placeholder/300/300', rating: 4.5, discount: 13 },
-  
-  // Headphones
-  { id: 4, name: 'Sony WH-1000XM5', type: 'headphones', price: 399, image: '/api/placeholder/300/300', rating: 4.9, isNew: true },
-  { id: 5, name: 'Bose QuietComfort 45', type: 'headphones', price: 329, image: '/api/placeholder/300/300', rating: 4.7 },
-  { id: 6, name: 'Apple AirPods Max', type: 'headphones', price: 549, originalPrice: 599, image: '/api/placeholder/300/300', rating: 4.6, discount: 8 },
-  
-  // Cameras
-  { id: 7, name: 'Canon EOS R6 Mark II', type: 'cameras', price: 2499, image: '/api/placeholder/300/300', rating: 4.8 },
-  { id: 8, name: 'Sony A7 IV', type: 'cameras', price: 2699, originalPrice: 2999, image: '/api/placeholder/300/300', rating: 4.9, discount: 10 },
-  { id: 9, name: 'Nikon Z6 II', type: 'cameras', price: 1999, image: '/api/placeholder/300/300', rating: 4.7, isNew: true },
-  
-  // Smartwatches
-  { id: 10, name: 'Apple Watch Ultra 2', type: 'smartwatch', price: 799, image: '/api/placeholder/300/300', rating: 4.8 },
-  { id: 11, name: 'Samsung Galaxy Watch 6', type: 'smartwatch', price: 349, originalPrice: 399, image: '/api/placeholder/300/300', rating: 4.6, discount: 12 },
-  { id: 12, name: 'Garmin Fenix 7', type: 'smartwatch', price: 699, image: '/api/placeholder/300/300', rating: 4.7, isNew: true },
-  
-  // Smartphones
-  { id: 13, name: 'iPhone 15 Pro Max', type: 'smartphones', price: 1199, image: '/api/placeholder/300/300', rating: 4.9, isNew: true },
-  { id: 14, name: 'Samsung Galaxy S23 Ultra', type: 'smartphones', price: 1199, originalPrice: 1299, image: '/api/placeholder/300/300', rating: 4.8, discount: 8 },
-  { id: 15, name: 'Google Pixel 8 Pro', type: 'smartphones', price: 999, image: '/api/placeholder/300/300', rating: 4.7 },
-  
-  // Airbuds
-  { id: 16, name: 'AirPods Pro (2nd Gen)', type: 'airbuds', price: 249, image: '/api/placeholder/300/300', rating: 4.8 },
-  { id: 17, name: 'Sony WF-1000XM5', type: 'airbuds', price: 299, originalPrice: 349, image: '/api/placeholder/300/300', rating: 4.9, discount: 14 },
-  { id: 18, name: 'Samsung Galaxy Buds2 Pro', type: 'airbuds', price: 229, image: '/api/placeholder/300/300', rating: 4.6, isNew: true },
-];
-
-
+// Product type configuration
 const productTypes = [
-  { id: 'all', label: 'All Products', icon: '📱' },
-  { id: 'laptops', label: 'Laptops', icon: '💻' },
-  { id: 'headphones', label: 'Headphones', icon: '🎧' },
-  { id: 'cameras', label: 'Cameras', icon: '📷' },
-  { id: 'smartwatch', label: 'Smartwatch', icon: '⌚' },
-  { id: 'smartphones', label: 'Smartphones', icon: '📱' },
-  { id: 'airbuds', label: 'Airbuds', icon: '🎵' },
+  { id: 'all', label: 'All Products', icon: '📱', variant: '' },
+  { id: 'laptops', label: 'Laptops', icon: '💻', variant: 'laptops' },
+  { id: 'headphones', label: 'Headphones', icon: '🎧', variant: 'headphones' },
+  { id: 'cameras', label: 'Cameras', icon: '📷', variant: 'cameras' },
+  { id: 'smartwatch', label: 'Smartwatch', icon: '⌚', variant: 'smartwatch' },
+  { id: 'smartphones', label: 'Smartphones', icon: '📱', variant: 'smartphones' },
+  { id: 'airbuds', label: 'Airbuds', icon: '🎵', variant: 'airbuds' },
 ];
-
-
 
 // Main ProductGrid component
 const ProductGrid = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(false);
   const [selectedType, setSelectedType] = useState<string>('all');
-  const [visibleProducts, setVisibleProducts] = useState<number>(6);
+  const [visibleProducts, setVisibleProducts] = useState<number>(12);
 
-  // Filter products based on selected type
-  const filteredProducts = selectedType === 'all' 
-    ? sampleProducts 
-    : sampleProducts.filter(product => product.type === selectedType);
+  // Build query based on selected type
+  const buildQuery = () => {
+    if (selectedType === 'all') {
+      return `*[_type == "product"] | order(_createdAt desc) {
+        _id,
+        title,
+        name,
+        slug,
+        price,
+        discountPrice,
+        category->{
+          title,
+          slug
+        },
+        variant,
+        tags,
+        stock,
+        description,
+        rating,
+        "imageUrl": image.asset->url,
+        isNew,
+        featured,
+        _createdAt
+      }`;
+    } else {
+      return `*[_type == "product" && variant == "${selectedType}"] | order(_createdAt desc) {
+        _id,
+        title,
+        name,
+        slug,
+        price,
+        discountPrice,
+        category->{
+          title,
+          slug
+        },
+        variant,
+        tags,
+        stock,
+        description,
+        rating,
+        "imageUrl": image.asset->url,
+        isNew,
+        featured,
+        _createdAt
+      }`;
+    }
+  };
+
+  // Fetch products from Sanity
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      try {
+        const query = buildQuery();
+        const data = await client.fetch(query);
+        setProducts(data || []);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProducts();
+  }, [selectedType]);
+
+  // Handle category change
+  const handleCategoryChange = (typeId: string) => {
+    setSelectedType(typeId);
+    setVisibleProducts(12);
+  };
+
+  // Load more products
+  const loadMore = () => {
+    setVisibleProducts(prev => prev + 12);
+  };
+
+  // Filter visible products
+  const visibleProductsList = products.slice(0, visibleProducts);
 
   return (
-    <div className=" mx-auto py-10">
-      <div className="mx-auto">
-          <div className="flex flex-wrap  gap-6 p-2">
-            {productTypes.map((type) => (
+    <div className="my-10 px-4 md:px-0">
+      {/* Tab Bar */}
+      <div className="mb-8">
+        <div className="flex flex-wrap justify-center gap-2 md:gap-4 p-2">
+          {productTypes.map((type) => (
+            <div key={type.id} className="relative">
+              <input
+                type="radio"
+                id={`type-${type.id}`}
+                name="productType"
+                value={type.id}
+                checked={selectedType === type.id}
+                onChange={(e) => handleCategoryChange(e.target.value)}
+                className="sr-only"
+              />
               <label
-                key={type.id}
-                className={`flex items-center gap-2 px-5 py-3 rounded-lg cursor-pointer transition-all duration-300 ${
+                htmlFor={`type-${type.id}`}
+                className={`flex items-center gap-2 px-4 py-2 md:px-5 md:py-3 rounded-lg cursor-pointer transition-all duration-300 select-none border-2 ${
                   selectedType === type.id
-                    ? 'bg-text-white shadow-lg  border-2 text-green-600'
-            
-                    : 'bg-slate-700 text-white border-2 border-slate-300  hover:bg-text-white hover:shadow-md'
+                    ? 'bg-white text-green-600 shadow-lg border-green-200 font-semibold'
+                    : 'bg-slate-700 text-white border-slate-300 hover:bg-white hover:text-slate-800 hover:border-slate-200'
                 }`}
               >
-                <input
-                  type="radio"
-                  name="productType"
-                  value={type.id}
-                  checked={selectedType === type.id}
-                  onChange={(e) => {
-                    setSelectedType(e.target.value);
-                    setVisibleProducts(6);
-                  }}
-                  className="sr-only" 
-                />
-                
-                <span className="">{type.label}</span>
+                <span className="text-lg">{type.icon}</span>
+                <span className="text-sm md:text-base whitespace-nowrap">{type.label}</span>
               </label>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-    
-        {/* Product grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mt-8">
-          {
-            filteredProducts.slice(0, visibleProducts).map((product) => (
-              <motion.div
-                key={product.id}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.3, delay: product.id * 0.05 }}
-              >
-                <ProductCard />
-              </motion.div>
-            ))
-          }
+      </div>
+
+      {/* Loading State */}
+      {loading && (
+        <div className="flex flex-col items-center justify-center py-20 min-h-80 space-y-4 text-center">
+          <motion.div 
+            className="flex items-center space-x-3 text-green-600"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+          >
+            <Loader2 className="w-6 h-6" />
+            <span className="text-lg">Loading products...</span>
+          </motion.div>
         </div>
-        {filteredProducts.length === 0 && (
-          <div className="text-center py-16">
-          
-            <h3 className="text-2xl font-bold text-gray-900 mb-2">No products found</h3>
-            <p className="text-gray-600">Try selecting a different category</p>
+      )}
+
+      {/* Products Grid */}
+      {!loading && visibleProductsList.length > 0 && (
+        <>
+          <div className="mb-6 text-center">
+            <p className="text-gray-600">
+              Showing <span className="font-bold text-green-600">{visibleProductsList.length}</span> of{' '}
+              <span className="font-bold text-gray-900">{products.length}</span> products
+            </p>
           </div>
-        )}
+
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
+            <AnimatePresence>
+              {visibleProductsList.map((product, index) => (
+                <motion.div
+                  key={product._id}
+                  layout
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ duration: 0.3, delay: index * 0.05 }}
+                  className="flex justify-center"
+                >
+                  <ProductCard product={product} />
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </div>
+        </>
+      )}
+
+      {/* No Products Found */}
+      {!loading && products.length === 0 && (
+        <div className="text-center py-16">
+          <div className="text-6xl mb-4">😕</div>
+          <h3 className="text-2xl font-bold text-gray-900 mb-2">No products found</h3>
+          <p className="text-gray-600">Try selecting a different category</p>
+        </div>
+      )}
+
+      {/* Load More Button */}
+      {!loading && visibleProducts < products.length && products.length > 0 && (
+        <div className="mt-12 text-center">
+          <motion.button
+            onClick={loadMore}
+            className="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-md"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Load More Products
+          </motion.button>
+        </div>
+      )}
     </div>
   );
 };
