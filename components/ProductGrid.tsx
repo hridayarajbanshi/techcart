@@ -44,7 +44,14 @@ const ProductGrid = () => {
         stock,
         description,
         rating,
-        "imageUrl": image.asset->url,
+         "images": image[]{
+    _key,
+    "url": asset->url,
+    "alt": alt,
+    "metadata": asset->metadata
+  },
+  "imageUrl": image[0].asset->url,
+  "imageAlt": alt,
         isNew,
         featured,
         _createdAt
@@ -66,7 +73,13 @@ const ProductGrid = () => {
         stock,
         description,
         rating,
-        "imageUrl": image.asset->url,
+         "images": image[]{_key,
+    "url": asset->url,
+    "alt": alt,
+    "metadata": asset->metadata
+  },
+  "imageUrl": image[0].asset->url,
+  "imageAlt": alt,
         isNew,
         featured,
         _createdAt

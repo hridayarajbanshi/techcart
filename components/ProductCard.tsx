@@ -3,7 +3,8 @@ import React, { useState } from 'react';
 import { ShoppingCart, Heart, Star } from 'lucide-react';
 import Link from 'next/link';
 import { Product } from "@/sanity.types";
-import { urlFor } from '@/sanity/lib/image';
+
+import Image from 'next/image';
 
 interface ProductCardProps {
   product: Product;
@@ -12,11 +13,8 @@ interface ProductCardProps {
 export default function ProductCard({ product }: ProductCardProps) {
   const [isFavorite, setIsFavorite] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-
-  const imageUrl = product.imageUrl 
-    ? urlFor(product.imageUrl).width(400).height(300).url() 
-    : "https://images.unsplash.com/photo-1657560566744-06d0b69f6647?q=80&w=600&auto=format&fit=crop";
-
+const firstImage = product?.image && product.image.length > 0 ? product.image[0] : null;
+const imgUrl = firstImage?.url || product.imageUrl || '/placeholder.png';
   const productName = product.title || product.name || "Product Name";
   const productPrice = product.discountPrice || product.price || 0;
   const originalPrice = product.price && product.discountPrice && product.price > product.discountPrice 
@@ -28,7 +26,6 @@ export default function ProductCard({ product }: ProductCardProps) {
   const isNewProduct = product.isNew || false;
   const productTags = product.tags || [];
   const productCategory = product.category?.title || "Category";
-console.log(imageUrl);
   return (
     <div 
       className="relative bg-white shadow-lg hover:shadow-2xl w-full max-w-[260px] rounded-xl transition-all duration-500 border border-gray-100 overflow-hidden m-2"
@@ -66,12 +63,13 @@ console.log(imageUrl);
 
         {/* Product Image */}
         <Link href={`/products/${product.slug?.current || '#'}`}>
-          <img 
-            className={`w-full h-full object-cover transition-all duration-500 ${isHovered ? 'scale-110' : 'scale-100'}`}
-            src={imageUrl}
-            alt={productName}
-            loading="lazy"
-          />
+        <Image className="w-full h-full object-cover transition-transform duration-500 transform hover:scale-105"
+          src={imgUrl}
+          alt={productName}
+          width={260}
+          height={192}
+          draggable={false}
+        />
         </Link>
       </div>
 
