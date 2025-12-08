@@ -20,12 +20,26 @@ const imgUrl = firstImage?.url || product.imageUrl || '/placeholder.png';
   const originalPrice = product.price && product.discountPrice && product.price > product.discountPrice 
     ? product.price 
     : null;
+ const discountAmount = product.discount || 0; // This is the discount amount (e.g., 150)
+  
+  // Calculate discounted price
+  const calculateDiscountPrice = () => {
+    if (originalPrice && discountAmount > 0) {
+      // If discount is a percentage (e.g., 15 for 15%)
+      if (discountAmount <= 100) {
+        return originalPrice * (1 - discountAmount / 100);
+      }
+      // If discount is a fixed amount (e.g., 150)
+      return Math.max(0, originalPrice - discountAmount);
+    }
+    return originalPrice;
+  };
   const productRating = product.rating || 0;
   const productStock = product.stock || 0;
   const isInStock = productStock > 0;
   const isNewProduct = product.isNew || false;
   const productTags = product.tags || [];
-  const productCategory = product.category?.title || "Category";
+const productCategory = product.variant || 'Uncategorized';
   return (
     <div 
       className="relative bg-white shadow-lg hover:shadow-2xl w-full max-w-[260px] rounded-xl transition-all duration-500 border border-gray-100 overflow-hidden m-2"
@@ -63,7 +77,7 @@ const imgUrl = firstImage?.url || product.imageUrl || '/placeholder.png';
 
         {/* Product Image */}
         <Link href={`/products/${product.slug?.current || '#'}`}>
-        <Image className="w-full h-full object-cover transition-transform duration-500 transform hover:scale-105"
+        <Image className="w-full h-full object-cover object-center transition-transform duration-500 transform hover:scale-105"
           src={imgUrl}
           alt={productName}
           width={260}
@@ -114,6 +128,7 @@ const imgUrl = firstImage?.url || product.imageUrl || '/placeholder.png';
           {originalPrice && (
             <span className="text-sm text-slate-400 line-through">
               ${originalPrice.toLocaleString()}
+    
             </span>
           )}
         </div>

@@ -34,7 +34,7 @@ const ProductGrid = () => {
         name,
         slug,
         price,
-        discountPrice,
+        discount,
         category->{
           title,
           slug
@@ -63,7 +63,7 @@ const ProductGrid = () => {
         name,
         slug,
         price,
-        discountPrice,
+        discount,
         category->{
           title,
           slug
