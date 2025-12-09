@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { Product } from "@/sanity.types";
 
 import Image from 'next/image';
-
+import { FormatPrice } from './PriceFormat';
 interface ProductCardProps {
   product: Product;
 }
@@ -42,7 +42,7 @@ const imgUrl = firstImage?.url || product.imageUrl || '/placeholder.png';
 const productCategory = product.variant || 'Uncategorized';
   return (
     <div 
-      className="relative bg-white shadow-lg hover:shadow-2xl w-full max-w-[260px] rounded-xl transition-all duration-500 border border-gray-100 overflow-hidden m-2"
+      className="relative bg-white shadow-lg hover:shadow-2xl w-full rounded-xl transition-all duration-500 border border-gray-100 overflow-hidden m-2"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
@@ -123,7 +123,7 @@ const productCategory = product.variant || 'Uncategorized';
         {/* Price */}
         <div className="flex items-center gap-2 mb-4">
           <span className="text-lg font-bold text-slate-900">
-            ${productPrice.toLocaleString()}
+            {FormatPrice(productPrice, 'NPR', 'full', true, 2)}
           </span>
           {originalPrice && (
             <span className="text-sm text-slate-400 line-through">

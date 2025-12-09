@@ -12,8 +12,8 @@ const productTypes = [
   { id: 'all', label: 'All Products', icon: '📱', variant: '' },
   { id: 'laptops', label: 'Laptops', icon: '💻', variant: 'laptops' },
   { id: 'headphones', label: 'Headphones', icon: '🎧', variant: 'headphones' },
-  { id: 'cameras', label: 'Cameras', icon: '📷', variant: 'cameras' },
-  { id: 'smartwatch', label: 'Smartwatch', icon: '⌚', variant: 'smartwatch' },
+  { id: 'camera', label: 'Camera', icon: '📷', variant: 'camera' },
+  { id: 'smartwatches', label: 'Smartwatches', icon: '⌚', variant: 'smartwatches' },
   { id: 'smartphones', label: 'Smartphones', icon: '📱', variant: 'smartphones' },
   { id: 'airbuds', label: 'Airbuds', icon: '🎵', variant: 'airbuds' },
 ];
@@ -105,25 +105,22 @@ const ProductGrid = () => {
     fetchProducts();
   }, [selectedType]);
 
-  // Handle category change
+
   const handleCategoryChange = (typeId: string) => {
     setSelectedType(typeId);
     setVisibleProducts(12);
   };
 
-  // Load more products
-  const loadMore = () => {
-    setVisibleProducts(prev => prev + 12);
-  };
-
+ 
+ 
   // Filter visible products
   const visibleProductsList = products.slice(0, visibleProducts);
 
   return (
-    <div className="my-10 px-4 md:px-0">
+    <div className="my-10 ">
       {/* Tab Bar */}
       <div className="mb-8">
-        <div className="flex flex-wrap justify-center gap-2 md:gap-4 p-2">
+        <div className="flex flex-wrap justify-center md:gap-4 p-2 sm:flex-row">
           {productTypes.map((type) => (
             <div key={type.id} className="relative">
               <input
@@ -154,14 +151,9 @@ const ProductGrid = () => {
       {/* Loading State */}
       {loading && (
         <div className="flex flex-col items-center justify-center py-20 min-h-80 space-y-4 text-center">
-          <motion.div 
-            className="flex items-center space-x-3 text-green-600"
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-          >
+       
             <Loader2 className="w-6 h-6" />
             <span className="text-lg">Loading products...</span>
-          </motion.div>
         </div>
       )}
 
@@ -198,25 +190,11 @@ const ProductGrid = () => {
       {/* No Products Found */}
       {!loading && products.length === 0 && (
         <div className="text-center py-16">
-          <div className="text-6xl mb-4">😕</div>
           <h3 className="text-2xl font-bold text-gray-900 mb-2">No products found</h3>
           <p className="text-gray-600">Try selecting a different category</p>
         </div>
       )}
 
-      {/* Load More Button */}
-      {!loading && visibleProducts < products.length && products.length > 0 && (
-        <div className="mt-12 text-center">
-          <motion.button
-            onClick={loadMore}
-            className="px-8 py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95 shadow-md"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Load More Products
-          </motion.button>
-        </div>
-      )}
     </div>
   );
 };
