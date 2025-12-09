@@ -40,9 +40,8 @@ const imgUrl = firstImage?.url || product.imageUrl || '/placeholder.png';
   const isNewProduct = product.isNew || false;
   const productTags = product.tags || [];
 const productCategory = product.variant || 'Uncategorized';
-const addingCart = (e) => {
-  e.preventDefault();
-  
+const addingCart = () => {
+  console.log(`Adding ${productName} to cart.`);  
 }
   return (
     <div 
