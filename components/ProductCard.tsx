@@ -40,6 +40,10 @@ const imgUrl = firstImage?.url || product.imageUrl || '/placeholder.png';
   const isNewProduct = product.isNew || false;
   const productTags = product.tags || [];
 const productCategory = product.variant || 'Uncategorized';
+const addingCart = (e) => {
+  e.preventDefault();
+  
+}
   return (
     <div 
       className="relative bg-white shadow-lg hover:shadow-2xl w-full rounded-xl transition-all duration-500 border border-gray-100 overflow-hidden m-2"
@@ -135,6 +139,7 @@ const productCategory = product.variant || 'Uncategorized';
 
         {/* Add to Cart Button */}
         <button 
+        onClick={addingCart}
           disabled={!isInStock}
           className={`flex items-center justify-center gap-2 py-2.5 w-full rounded-lg transition-all duration-300 cursor-pointer active:scale-[0.98] overflow-hidden ${
             isInStock 

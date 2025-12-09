@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { client } from "@/sanity/lib/client";
 import { Loader2 } from "lucide-react";
 import { Product } from "@/sanity.types";
-
+import Link from "next/link";
 // Product type configuration
 const productTypes = [
   { id: 'all', label: 'All Products', icon: '📱', variant: '' },
@@ -160,11 +160,8 @@ const ProductGrid = () => {
       {/* Products Grid */}
       {!loading && visibleProductsList.length > 0 && (
         <>
-          <div className="mb-6 text-center">
-            <p className="text-gray-600">
-              Showing <span className="font-bold text-green-600">{visibleProductsList.length}</span> of{' '}
-              <span className="font-bold text-gray-900">{products.length}</span> products
-            </p>
+          <div className="mb-6 text-right">
+          <Link href="/products" ><span className="underline hover:text-green-500 font-semibold">See all</span></Link>
           </div>
 
           <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 md:gap-6">
