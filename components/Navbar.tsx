@@ -36,12 +36,7 @@ const App = async () => {
             />
 
             {/* Main Content */}
-            <div className="pt-20">
-                <div className="max-w mx-auto px-4 md:px-8 lg:px-16 py-8">
-                    <Slider />
-               
-                </div>
-            </div>
+            
         </div>
     );
 }

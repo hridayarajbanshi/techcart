@@ -118,14 +118,14 @@ const BrandGrid = () => {
         <div className='text-right self-center'>
           <Link href={"/brands"} className="inline-block">
             <span className='underline font-semibold hover:text-green-600 cursor-pointer transition-colors'>
-              View all brands ({brands.length})
+              View all brands
             </span>
           </Link>
         </div>
       </div>
 
       {/* Brands Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4 md:gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-2 m-0">
         {brands.map((brand, index) => {
           
           const brandLogoUrl = brand.logo 
@@ -135,61 +135,42 @@ const BrandGrid = () => {
           return (
             <div
               key={brand._id}
-              className="group relative rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-500 ease-out hover:-translate-y-2 border border-gray-100 overflow-hidden bg-white"
+              className="group relative shadow-lg hover:shadow-2xl transition-all duration-500 ease-out hover:-translate-y-2 border border-gray-100 overflow-hidden bg-white w-40 m-0"
             >
               <Link 
                 href={{
-                  pathname: '/products',
+                  pathname: `/brand/${brand.slug.current}`,
                   query: { brand: brand.slug.current }
                 }} 
                 className="block h-full"
               >
                 {/* Background Gradient */}
-                <div className={`absolute inset-0 bg-gradient-to-br  opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+                <div className={`absolute inset-0  opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
                 
                 {/* Shine Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+                <div className="absolute inset-0  from-transparent via-white/20 to-transparent -skew-x-12 -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
                 
                 {/* Content */}
-                <div className="relative z-10 p-6 h-full flex flex-col items-center justify-center">
+                <div className="relative z-10 p-2 h-full flex flex-col items-center justify-center">
                   {/* Logo */}
                   <div className="mb-4 w-20 h-20 flex items-center justify-center">
-                    {brandLogoUrl ? (
-                      <div className="relative w-full h-full">
-                        <Image
-                          src={brandLogoUrl}
-                          alt={brand.name}
-                          fill
-                          className="object-contain"
-                          sizes="(max-width: 80px) 100vw, 80px"
-                        />
-                      </div>
-                    ) : (
-                      <span className="text-4xl">
-                        {['💻', '📱', '🎧', '⌚', '📷'][index % 5]}
-                      </span>
-                    )}
-                  </div>
-                  
-                  {/* Brand Name */}
-                  <h3 className={`text-lg font-bold text-center mb-2 transition-colors duration-300`}>
-                    {brand.name}
-                  </h3>
-                  
-                  {/* Products Count */}
-                  <div className="text-sm text-gray-500 mt-2">
-                    {brand.productsCount || 0} products
-                  </div>
-                  
-                  {/* Description (on hover) */}
-                  <div className="mt-3 text-xs text-gray-600 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 line-clamp-2">
-                    {brand.description || 'Explore products from this brand'}
-                  </div>
+                      {brandLogoUrl && (
+                        <div className="relative w-full h-full">
+                          <Image
+                            src={brandLogoUrl}
+                            alt={brand.name}
+                            fill
+                            className="object-contain bg-center"
+                            sizes="(max-width: 80px) 100vw, 80px"
+                          />
+                        </div>
+                      )}
+                
+                  </div>  
                 </div>
 
-                {/* Hover Border Effect */}
-                <div className="absolute inset-0 rounded-2xl border-2 border-transparent bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-padding opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10">
-                  <div className="absolute inset-[2px] rounded-2xl bg-white" />
+                <div className="absolute inset-0 rounded-2xl border-2 border-transparent bg-clip-padding opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10">
+              
                 </div>
               </Link>
             </div>
